@@ -14,20 +14,27 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        r-version: ['4.4.1']
+        r-version: ['3.6.3', '4.1.1']
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensures full repo history
+          fetch-depth: 0  # Ensure the full repo is cloned
+
+      - name: Debug file existence
+        run: ls -la
+        shell: bash
 
       - name: Check for DESCRIPTION file
         run: |
-          if [ ! -f DESCRIPTION ]; then
+          if [ ! -f "DESCRIPTION" ]; then
             echo "❌ ERROR: DESCRIPTION file is missing!"
             exit 1
+          else
+            echo "✅ DESCRIPTION file found!"
           fi
+        shell: bash
 
       - name: Set up R ${{ matrix.r-version }}
         uses: r-lib/actions/setup-r@v2
