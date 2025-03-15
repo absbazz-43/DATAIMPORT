@@ -14,11 +14,16 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        r-version: ['4.4.1']
+        r-version: ['3.6.3', '4.1.1']
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensures full repo history
+
+      - name: Verify repository structure
+        run: ls -la  # Debug step to check if DESCRIPTION exists
 
       - name: Set up R ${{ matrix.r-version }}
         uses: r-lib/actions/setup-r@v2
@@ -27,9 +32,10 @@ jobs:
 
       - name: Install dependencies
         run: |
+          if (!file.exists("DESCRIPTION")) stop("DESCRIPTION file is missing!")  # Debug check
           install.packages(c("remotes", "rcmdcheck"))
-          remotes::install_deps(dependencies = TRUE)
-          remotes::install_github("r-lib/rcmdcheck")  # Ensure latest version
+          remotes::install_deps(dependencies = TRUE, upgrade = "always")
+          remotes::install_github("r-lib/rcmdcheck")
         shell: Rscript {0}
 
       - name: Check package
